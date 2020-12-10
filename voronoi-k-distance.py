@@ -8,7 +8,6 @@ from sklearn.cluster import KMeans
 from sklearn import datasets
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-
 # Returns the Euclidean distance of two real-valued points	
 def euclideanDistance(pt1, pt2):
     return math.sqrt((pt1[0] - pt2[0])**2 + (pt1[1] - pt2[1])**2)
@@ -54,22 +53,19 @@ def genData():
 	points = x_neat
 	return points
 
+"""
+Uses read_data.py to gather points for outlier detection
+transforms list of points to array
+"""
 def readData():
-	np.set_printoptions(precision=2)
 	points = np.array(read_data.main())
 	return points
 
-#points = genData()
-points = readData()
-# Generate Voronoi diagram
-vor = Voronoi(points, furthest_site = False)
-
-# Get Voronoi data from diagram (required by functions)
-vertices = vor.vertices
-ridge_vertices = vor.ridge_vertices
-regions = vor.regions
-point_region = vor.point_region
-
+"""
+Uses matplotlib to generate a scatter plot of data
+outliers are shown on a scale from red to blue
+red being a point deviating the most from the others
+"""
 def plot_points(vor,points):
 	# Plot results
 	k = 3
@@ -83,5 +79,16 @@ def plot_points(vor,points):
 	cbar = plt.colorbar(plot)
 	cbar.set_label(f'Voronoi {k}-distance', rotation=270, labelpad=15)
 
-plot_points(vor,points)
-plt.show()
+#starting point
+if __name__ == "__main__":
+	global regions
+	points = readData()
+
+	vor = Voronoi(points, furthest_site = False)
+	vertices = vor.vertices
+	ridge_vertices = vor.regions
+	regions = vor.regions
+	point_region = vor.point_region
+
+	plot_points(vor,points)
+	plt.show()
