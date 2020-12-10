@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 import math
+import read_data
 from sklearn.cluster import KMeans
 from sklearn import datasets
 from scipy.spatial import Voronoi, voronoi_plot_2d
@@ -38,18 +39,28 @@ def kDistance(index, k):
 		sum = sum + euclideanDistance(points[index], points[o])
 	return sum / k
 
-# Some sample data
-centers_neat = [(-10, 10), (0, -5), (10, 5)]
-x_neat, y_neat = datasets.make_blobs(n_samples=500, 
+
+def genData():
+	# Some sample data
+	centers_neat = [(-10, 10), (0, -5), (10, 5)]
+	x_neat, y_neat = datasets.make_blobs(n_samples=500, 
                                      centers=centers_neat,
                                      cluster_std=2,
                                      random_state=2)
 
-np.set_printoptions(precision=2)
+	np.set_printoptions(precision=2)
 
-# points = np.random.randn(10,2)
-points = x_neat
+	# points = np.random.randn(10,2)
+	points = x_neat
+	return points
 
+def readData():
+	np.set_printoptions(precision=2)
+	points = np.array(read_data.main())
+	return points
+
+#points = genData()
+points = readData()
 # Generate Voronoi diagram
 vor = Voronoi(points, furthest_site = False)
 
@@ -59,16 +70,18 @@ ridge_vertices = vor.ridge_vertices
 regions = vor.regions
 point_region = vor.point_region
 
-k = 3
+def plot_points(vor,points):
+	# Plot results
+	k = 3
+	voronoi_plot_2d(vor, show_points=False, show_vertices=False, line_width=0.5)
+	plot = plt.scatter([item[0] for item in points],
+ 		[item[1] for item in points],
+ 		c=[kDistance(i, k) for i in range(len(points))],
+		s=3,
+ 		cmap="coolwarm")
 
-# Plot results
-voronoi_plot_2d(vor, show_points=False, show_vertices=False, line_width=0.5)
-plot = plt.scatter([item[0] for item in points],
- 			[item[1] for item in points],
- 			c=[kDistance(i, k) for i in range(len(points))],
-			s=3,
- 			cmap="coolwarm")
-cbar = plt.colorbar(plot)
-cbar.set_label(f'Voronoi {k}-distance', rotation=270, labelpad=15)
+	cbar = plt.colorbar(plot)
+	cbar.set_label(f'Voronoi {k}-distance', rotation=270, labelpad=15)
 
+plot_points(vor,points)
 plt.show()
