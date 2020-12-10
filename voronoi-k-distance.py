@@ -1,20 +1,12 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np
 import math
 from sklearn.cluster import KMeans
+from sklearn import datasets
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-np.set_printoptions(precision=2)
-points = np.random.randn(10,2)
-vor = Voronoi(points, furthest_site = False)
-
-fig = voronoi_plot_2d(vor, show_vertices=False, line_colors='blue',line_width=1,line_alpha=0.5,point_size=3)
-graph = plt.figure(1, figsize= (4,3))
-
-vertices = vor.vertices
-ridge_vertices = vor.ridge_vertices
-regions = vor.regions
-point_region = vor.point_region
 
 # Returns the Euclidean distance of two real-valued points	
 def euclideanDistance(pt1, pt2):
@@ -46,11 +38,37 @@ def kDistance(index, k):
 		sum = sum + euclideanDistance(points[index], points[o])
 	return sum / k
 
-# Prints an ordered list of the points along with their Voronoi k-Distances
-kDistances = [] 
-for i in range(len(points)):
-	kDistances.append([points[i], kDistance(i, 3)])
-	kDistances.sort(key=lambda x: x[1])
+# Some sample data
+centers_neat = [(-10, 10), (0, -5), (10, 5)]
+x_neat, y_neat = datasets.make_blobs(n_samples=500, 
+                                     centers=centers_neat,
+                                     cluster_std=2,
+                                     random_state=2)
 
-print(kDistances)
+np.set_printoptions(precision=2)
+
+# points = np.random.randn(10,2)
+points = x_neat
+
+# Generate Voronoi diagram
+vor = Voronoi(points, furthest_site = False)
+
+# Get Voronoi data from diagram (required by functions)
+vertices = vor.vertices
+ridge_vertices = vor.ridge_vertices
+regions = vor.regions
+point_region = vor.point_region
+
+k = 3
+
+# Plot results
+voronoi_plot_2d(vor, show_points=False, show_vertices=False, line_width=0.5)
+plot = plt.scatter([item[0] for item in points],
+ 			[item[1] for item in points],
+ 			c=[kDistance(i, k) for i in range(len(points))],
+			s=3,
+ 			cmap="coolwarm")
+cbar = plt.colorbar(plot)
+cbar.set_label(f'Voronoi {k}-distance', rotation=270, labelpad=15)
+
 plt.show()
