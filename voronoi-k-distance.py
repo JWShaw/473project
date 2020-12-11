@@ -6,10 +6,11 @@ import numpy as np
 import math
 import sys
 import read_data
+import subprocess
+
 from sklearn.cluster import KMeans
 from sklearn import datasets
 from scipy.spatial import Voronoi, voronoi_plot_2d
-from statistics import median
 
 # Returns the Euclidean distance of two real-valued points	
 def euclideanDistance(pt1, pt2):
@@ -32,7 +33,7 @@ def kNearestNeighbors(index, k):
 				break
 	neighbors.sort(key=lambda x: x[1])
 	all_neighbors = [n[0] for n in neighbors]
-	neighbor_ids.append(list(all_neighbors))
+	neighbor_ids.append(all_neighbors)
 	return [neighbor[0] for neighbor in neighbors][:k]
 
 # Returns the k-Distance of a given point.  This is the measure
@@ -96,8 +97,7 @@ def plot_points(vor, points, k_distances, k, axis_labels):
 	plt.ylabel(axis_labels[1])
 
 	cbar = plt.colorbar(plot)
-	cbar.set_label('Voronoi {k}-distance'.format(k=k), rotation=270, labelpad=15)
-	
+	cbar.set_label('Voronoi {k}-distance'.format(k=k), rotation=270, labelpad=15)	
 
 #starting point
 if __name__ == "__main__":
@@ -128,7 +128,6 @@ if __name__ == "__main__":
 
 	df.to_csv("./result.csv")
 
-	print(df)
-
+	subprocess.run(["open", "result.csv"])	
 	plot_points(vor,points,k_distances,k,axis_labels)
 	plt.show()
