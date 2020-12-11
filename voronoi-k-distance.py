@@ -31,6 +31,8 @@ def kNearestNeighbors(index, k):
 				neighbors.append([j, dist])
 				break
 	neighbors.sort(key=lambda x: x[1])
+	all_neighbors = [n[0] for n in neighbors]
+	neighbor_ids.append(list(all_neighbors))
 	return [neighbor[0] for neighbor in neighbors][:k]
 
 # Returns the k-Distance of a given point.  This is the measure
@@ -100,9 +102,11 @@ def plot_points(vor, points, k_distances, k, axis_labels):
 #starting point
 if __name__ == "__main__":
 	global regions
+	global neighbor_ids
 
+	neighbor_ids = []
 	points, axis_labels, k = read_data.main()
-
+	
 	vor = Voronoi(points, furthest_site = False)
 
 	vertices = vor.vertices
@@ -114,11 +118,12 @@ if __name__ == "__main__":
 	k_distances = [kDistance(i, k) for i in range(len(points))]
 	outlier_values,outlier_class = getOutlierValues(k_distances)
 	perimeters = [region_perimeter(i) for i in range(len(points))]
-
+		
 	df = pd.DataFrame(data=points, columns=axis_labels)
 	df = df.assign(perimeter=perimeters)
 	df = df.assign(outliervalue=outlier_values)
 	df = df.assign(outlierclass=outlier_class)
+	df = df.assign(neighbors=neighbor_ids)
 	df = df.sort_values(by=['outliervalue'],ascending=False)
 
 	df.to_csv("./result.csv")
