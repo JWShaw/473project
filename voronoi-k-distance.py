@@ -118,14 +118,14 @@ if __name__ == "__main__":
 	k_distances = [kDistance(i, k) for i in range(len(points))]
 	outlier_values,outlier_class = getOutlierValues(k_distances)
 	perimeters = [region_perimeter(i) for i in range(len(points))]
-		
+	
 	df = pd.DataFrame(data=points, columns=axis_labels)
 	df = df.assign(perimeter=perimeters)
 	df = df.assign(outliervalue=outlier_values)
 	df = df.assign(outlierclass=outlier_class)
 	df = df.assign(neighbors=neighbor_ids)
-	df = df.sort_values(by=['outliervalue'],ascending=False)
-
+	df = df.sort_values(by=['outliervalue'],ascending=False).round(3)
+	
 	df.to_csv("./result.csv")
 
 	subprocess.run(["open", "result.csv"])	
