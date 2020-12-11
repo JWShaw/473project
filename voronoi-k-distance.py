@@ -1,8 +1,10 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import pandas as pd
 import numpy as np
 import math
+import sys
 import read_data
 from sklearn.cluster import KMeans
 from sklearn import datasets
@@ -60,13 +62,12 @@ transforms list of points to array
 def readData():
 	points = np.array(read_data.main())
 	return points
-
 """
 Uses matplotlib to generate a scatter plot of data
 outliers are shown on a scale from red to blue
 red being a point deviating the most from the others
 """
-def plot_points(vor,points):
+def plot_points(vor, points, axis_labels):
 	# Plot results
 	k = 3
 	voronoi_plot_2d(vor, show_points=False, show_vertices=False, line_width=0.5)
@@ -75,6 +76,8 @@ def plot_points(vor,points):
  		c=[kDistance(i, k) for i in range(len(points))],
 		s=3,
  		cmap="coolwarm")
+	plt.xlabel(axis_labels[0])
+	plt.ylabel(axis_labels[1])
 
 	cbar = plt.colorbar(plot)
 	cbar.set_label(f'Voronoi {k}-distance', rotation=270, labelpad=15)
@@ -82,7 +85,7 @@ def plot_points(vor,points):
 #starting point
 if __name__ == "__main__":
 	global regions
-	points = readData()
+	points, axis_labels = read_data.main()
 
 	vor = Voronoi(points, furthest_site = False)
 	vertices = vor.vertices
@@ -90,5 +93,5 @@ if __name__ == "__main__":
 	regions = vor.regions
 	point_region = vor.point_region
 
-	plot_points(vor,points)
+	plot_points(vor,points,axis_labels)
 	plt.show()
