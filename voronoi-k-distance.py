@@ -124,6 +124,7 @@ if __name__ == "__main__":
 	df = df.assign(outliervalue=outlier_values)
 	df = df.assign(outlierclass=outlier_class)
 	df = df.assign(neighbors=neighbor_ids)
+	df = df.assign(kdistance=k_distances)
 	df = df.sort_values(by=['outliervalue'],ascending=False).round(3)
 	
 	df.to_csv("./result.csv")
