@@ -40,20 +40,16 @@ def kDistance(index, k):
 		sum = sum + euclideanDistance(points[index], points[o])
 	return sum / k
 
+def region_perimeter(index):
+	region = regions[point_region[index]]
+	result = 0
+	for i in range(len(region)):
+		if region[i] == -1:
+			return -1
+		result = result + euclideanDistance(vertices[region[i]], \
+				 vertices[region[(i + 1) % len(region)]])
+	return result
 
-def genData():
-	# Some sample data
-	centers_neat = [(-10, 10), (0, -5), (10, 5)]
-	x_neat, y_neat = datasets.make_blobs(n_samples=500, 
-                                     centers=centers_neat,
-                                     cluster_std=2,
-                                     random_state=2)
-
-	np.set_printoptions(precision=2)
-
-	# points = np.random.randn(10,2)
-	points = x_neat
-	return points
 
 """
 Uses read_data.py to gather points for outlier detection
@@ -62,18 +58,17 @@ transforms list of points to array
 def readData():
 	points = np.array(read_data.main())
 	return points
+
 """
 Uses matplotlib to generate a scatter plot of data
 outliers are shown on a scale from red to blue
 red being a point deviating the most from the others
 """
-def plot_points(vor, points, axis_labels):
-	# Plot results
-	k = 3
+def plot_points(vor, points, k_distances, k, axis_labels):
 	voronoi_plot_2d(vor, show_points=False, show_vertices=False, line_width=0.5)
 	plot = plt.scatter([item[0] for item in points],
  		[item[1] for item in points],
- 		c=[kDistance(i, k) for i in range(len(points))],
+ 		c=k_distances,
 		s=3,
  		cmap="coolwarm")
 	plt.xlabel(axis_labels[0])
@@ -81,17 +76,33 @@ def plot_points(vor, points, axis_labels):
 
 	cbar = plt.colorbar(plot)
 	cbar.set_label(f'Voronoi {k}-distance', rotation=270, labelpad=15)
+	
 
 #starting point
 if __name__ == "__main__":
 	global regions
-	points, axis_labels = read_data.main()
+
+	points, axis_labels, k = read_data.main()
 
 	vor = Voronoi(points, furthest_site = False)
+
 	vertices = vor.vertices
 	ridge_vertices = vor.regions
 	regions = vor.regions
 	point_region = vor.point_region
 
-	plot_points(vor,points,axis_labels)
+	# Generate the k-distance for each point
+	k_distances = [kDistance(i, k) for i in range(len(points))]
+
+	perimeters = [region_perimeter(i) for i in range(len(points))]
+	print(perimeters)
+
+	df = pd.DataFrame(data=points, columns=axis_labels)
+	df = df.assign(perimeter=perimeters)
+
+	df.to_csv("./result.csv")
+
+	print(df)
+
+	plot_points(vor,points,k_distances,k,axis_labels)
 	plt.show()

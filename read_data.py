@@ -11,7 +11,11 @@ def main():
 		points = df.values.tolist()
 		axis_labels = list(df)
 
-		return points, axis_labels
+		k = 3
+		if len(sys.argv) == 3:
+			k = int(sys.argv[2])
+
+		return points, axis_labels, k
 	except:
 		sys.exit("Please input file path!")
 
