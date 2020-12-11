@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plot
-import random as rand
+import time
 '''
 width (float): width of the rectangle boundary
 height (float): height of the rectangle boundary
@@ -247,16 +247,28 @@ for each in C:
 for each in E:
     print(each)
 '''
-size = 10   # you can change the number of random points
+size = 50   # you can change the number of random points
 x, y = np.random.rand(size), np.random.rand(size)
 width, height = 1, 1
 sites = []
 for j in range(size):
     sites.append((x[j], y[j]))
-print('Random points are')
-print(sites)
+print('Number of edges')
+#print(sites)
 E, C = generate_diagrams(width, height, sites)
+print(len(E))
 plot.scatter(x, y, color='red', s=6)
+xx = []
+yy = []
 for e in E:
-    plot.plot([e[0][0], e[1][0]], [e[0][1], e[1][1]], color='black', linewidth=0.5)
+    (s, t), (u, v) = e[0], e[1]
+    xx.append(s)
+    xx.append(u)
+    xx.append(None)
+    yy.append(t)
+    yy.append(v)
+    yy.append(None)
+
+plot.plot(xx, yy, color='black', linewidth=0.5)
+
 plot.show()
