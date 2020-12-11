@@ -9,6 +9,7 @@ import read_data
 from sklearn.cluster import KMeans
 from sklearn import datasets
 from scipy.spatial import Voronoi, voronoi_plot_2d
+from statistics import median
 
 # Returns the Euclidean distance of two real-valued points	
 def euclideanDistance(pt1, pt2):
@@ -50,6 +51,24 @@ def region_perimeter(index):
 				 vertices[region[(i + 1) % len(region)]])
 	return result
 
+def getOutlierValues(kdistances):
+	outlier_vals = []
+	outlier_class = []
+	max_val = max(kdistances)
+	min_val = min(kdistances)
+	
+	scale = 10 / max_val
+	threshold = np.percentile(kdistances, 95) * scale
+	
+	for distance in kdistances:
+		val = distance * scale
+		outlier_vals.append(val)
+		if val > threshold:
+			outlier_class.append('outlier')
+		else:
+			outlier_class.append('not outlier')
+
+	return outlier_vals, outlier_class
 
 """
 Uses read_data.py to gather points for outlier detection
@@ -75,7 +94,7 @@ def plot_points(vor, points, k_distances, k, axis_labels):
 	plt.ylabel(axis_labels[1])
 
 	cbar = plt.colorbar(plot)
-	cbar.set_label(f'Voronoi {k}-distance', rotation=270, labelpad=15)
+	cbar.set_label('Voronoi {k}-distance'.format(k=k), rotation=270, labelpad=15)
 	
 
 #starting point
@@ -93,12 +112,14 @@ if __name__ == "__main__":
 
 	# Generate the k-distance for each point
 	k_distances = [kDistance(i, k) for i in range(len(points))]
-
+	outlier_values,outlier_class = getOutlierValues(k_distances)
 	perimeters = [region_perimeter(i) for i in range(len(points))]
-	print(perimeters)
 
 	df = pd.DataFrame(data=points, columns=axis_labels)
 	df = df.assign(perimeter=perimeters)
+	df = df.assign(outliervalue=outlier_values)
+	df = df.assign(outlierclass=outlier_class)
+	df = df.sort_values(by=['outliervalue'],ascending=False)
 
 	df.to_csv("./result.csv")
 
