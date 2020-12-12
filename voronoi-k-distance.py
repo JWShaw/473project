@@ -152,6 +152,6 @@ if __name__ == "__main__":
 	
 	writeCSV(points,axis_labels,k_distances)
 
-	subprocess.run(["open", "result.csv"])	
+	# subprocess.run(["open", "result.csv"])	
 	plot_points(vor,points,k_distances,k,axis_labels)
 	plt.show()
