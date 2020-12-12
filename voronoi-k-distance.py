@@ -23,7 +23,8 @@ def kNearestNeighbors(index, k):
 	neighbors = []
 	for i in range(len(region)):
 		sharedEdge = [region[i], region[(i+1) % len(region)]]
-		
+		edges.append(sharedEdge)
+	
 		for j in range(len(points)):
 			if j == index:
 				continue
@@ -127,10 +128,11 @@ def writeCSV(points,axis_labels,k_distances):
 		
 #starting point
 if __name__ == "__main__":
-	global regions
+	global regions, edges
 	global neighbor_ids
 
 	neighbor_ids = []
+	edges = []
 	points, axis_labels, k = read_data.main()
 	
 	vor = Voronoi(points, furthest_site = False)
