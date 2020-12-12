@@ -53,25 +53,32 @@ def region_perimeter(index):
 		result = result + euclideanDistance(vertices[region[i]], \
 				 vertices[region[(i + 1) % len(region)]])
 	return result
-
+"""Returns oulier values as well as a classification for each point
+uses a scale value to make outlier value consistent independent of which dataset is chosen"""
 def getOutlierValues(kdistances):
 	outlier_vals = []
 	outlier_class = []
 	max_val = max(kdistances)
 	min_val = min(kdistances)
-	
+
+	#scale used to give a value from 0 to 10, highest outlier value of 10
 	scale = 10 / max_val
-	threshold = np.percentile(kdistances, 95) * scale
-	
+	outlier_threshold = np.percentile(kdistances, 95) * scale
+	soft_threshold = np.percentile(kdistances, 90) * scale
+
+	#runs through all kdistances to classify each point
 	for distance in kdistances:
 		val = distance * scale
 		outlier_vals.append(val)
-		if val > threshold:
+		if val > outlier_threshold:
 			outlier_class.append('outlier')
+		elif val > soft_threshold:
+			outlier_class.append('likely outlier')
 		else:
 			outlier_class.append('not outlier')
 
 	return outlier_vals, outlier_class
+
 
 """
 Uses read_data.py to gather points for outlier detection
@@ -80,6 +87,7 @@ transforms list of points to array
 def readData():
 	points = np.array(read_data.main())
 	return points
+
 
 """
 Uses matplotlib to generate a scatter plot of data
@@ -99,6 +107,24 @@ def plot_points(vor, points, k_distances, k, axis_labels):
 	cbar = plt.colorbar(plot)
 	cbar.set_label('Voronoi {k}-distance'.format(k=k), rotation=270, labelpad=15)	
 
+def writeCSV(points,axis_labels,k_distances):
+	
+	data_len = len(points)
+	outlier_values, outlier_class = getOutlierValues(k_distances)
+	perimeters = [region_perimeter(i) for i in range(data_len)]
+	
+	#create dataframe with findings
+	df = pd.DataFrame(data=points, columns=axis_labels)
+	df = df.assign(perimeter=perimeters)
+	df = df.assign(outliervalue=outlier_values)
+	df = df.assign(outlierclass=outlier_class)
+	df = df.assign(neighbors=neighbor_ids)
+	df = df.assign(kdistance=k_distances)
+	
+	#sort by value 
+	df = df.sort_values(by=['outliervalue'],ascending=False).round(3)	
+	df.to_csv("./result.csv")
+		
 #starting point
 if __name__ == "__main__":
 	global regions
@@ -113,21 +139,9 @@ if __name__ == "__main__":
 	ridge_vertices = vor.regions
 	regions = vor.regions
 	point_region = vor.point_region
-
-	# Generate the k-distance for each point
-	k_distances = [kDistance(i, k) for i in range(len(points))]
-	outlier_values,outlier_class = getOutlierValues(k_distances)
-	perimeters = [region_perimeter(i) for i in range(len(points))]
+	k_distances = [kDistance(i,k) for i in range(len(points))]	
 	
-	df = pd.DataFrame(data=points, columns=axis_labels)
-	df = df.assign(perimeter=perimeters)
-	df = df.assign(outliervalue=outlier_values)
-	df = df.assign(outlierclass=outlier_class)
-	df = df.assign(neighbors=neighbor_ids)
-	df = df.assign(kdistance=k_distances)
-	df = df.sort_values(by=['outliervalue'],ascending=False).round(3)
-	
-	df.to_csv("./result.csv")
+	writeCSV(points,axis_labels,k_distances)
 
 	subprocess.run(["open", "result.csv"])	
 	plot_points(vor,points,k_distances,k,axis_labels)
