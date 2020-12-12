@@ -8,7 +8,6 @@ def cluster(df,k):
 	first_col_name = df.columns[0]
 	first_col = df.iloc[:,0]
 	clusters = first_col.unique()
-
 	new_df = []
 	for i in range(k):
 		row = df.loc[df[first_col_name] == clusters[i]]
@@ -34,7 +33,6 @@ def main():
 			k = int(sys.argv[2])
 
 		if num_cols > 2:
-			df = df[:3000]
 			points = cluster(df,k)
 			df = df.drop(columns = df.columns[0])
 			axis_labels = list(df)	
