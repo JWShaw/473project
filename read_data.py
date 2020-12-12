@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import sys
 
+
 def cluster(df,k):
 	k_clusters = []
 	first_col_name = df.columns[0]
@@ -27,18 +28,19 @@ def main():
 		df = df.dropna()
 
 		num_cols = len(df.columns)
+		k = 3
 
-		k = 4
+		if len(sys.argv) == 3:
+			k = int(sys.argv[2])
+
 		if num_cols > 2:
+			df = df[:3000]
 			points = cluster(df,k)
 			df = df.drop(columns = df.columns[0])
 			axis_labels = list(df)	
 		else:	
 			points = df.values.tolist()
 			axis_labels = list(df)
-
-		if len(sys.argv) == 3:
-			k = int(sys.argv[2])
 
 		return points, axis_labels, k
 	except:
