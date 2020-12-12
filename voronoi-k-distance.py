@@ -21,9 +21,10 @@ def euclideanDistance(pt1, pt2):
 def kNearestNeighbors(index, k):
 	region = regions[point_region[index]]
 	neighbors = []
+	index_edges = []
 	for i in range(len(region)):
 		sharedEdge = [region[i], region[(i+1) % len(region)]]
-		edges.append(sharedEdge)
+		index_edges.append(sharedEdge)
 	
 		for j in range(len(points)):
 			if j == index:
@@ -32,6 +33,8 @@ def kNearestNeighbors(index, k):
 				dist = euclideanDistance(points[index], points[j])
 				neighbors.append([j, dist])
 				break
+
+	edges.append(index_edges)
 	neighbors.sort(key=lambda x: x[1])
 	all_neighbors = [n[0] for n in neighbors]
 	neighbor_ids.append(all_neighbors)
@@ -66,6 +69,7 @@ def getOutlierValues(kdistances):
 	scale = 10 / max_val
 	outlier_threshold = np.percentile(kdistances, 95) * scale
 	soft_threshold = np.percentile(kdistances, 90) * scale
+	seventy_fifth = np.percentile(kdistances, 75) * scale
 
 	#runs through all kdistances to classify each point
 	for distance in kdistances:
@@ -75,6 +79,8 @@ def getOutlierValues(kdistances):
 			outlier_class.append('outlier')
 		elif val > soft_threshold:
 			outlier_class.append('likely outlier')
+		elif val > seventy_fifth:
+			outlier_class.append('possible outlier')
 		else:
 			outlier_class.append('not outlier')
 
@@ -121,9 +127,10 @@ def writeCSV(points,axis_labels,k_distances):
 	df = df.assign(outlierclass=outlier_class)
 	df = df.assign(neighbors=neighbor_ids)
 	df = df.assign(kdistance=k_distances)
+	df = df.assign(edge=edges)	
 	
 	#sort by value 
-	df = df.sort_values(by=['outliervalue'],ascending=False).round(3)	
+	df = df.round(3)	
 	df.to_csv("./result.csv")
 		
 #starting point
@@ -145,6 +152,6 @@ if __name__ == "__main__":
 	
 	writeCSV(points,axis_labels,k_distances)
 
-	# subprocess.run(["open", "result.csv"])	
+	subprocess.run(["open", "result.csv"])	
 	plot_points(vor,points,k_distances,k,axis_labels)
 	plt.show()
