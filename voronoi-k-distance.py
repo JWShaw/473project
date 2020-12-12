@@ -21,10 +21,8 @@ def euclideanDistance(pt1, pt2):
 def kNearestNeighbors(index, k):
 	region = regions[point_region[index]]
 	neighbors = []
-	index_edges = []
 	for i in range(len(region)):
 		sharedEdge = [region[i], region[(i+1) % len(region)]]
-		index_edges.append(sharedEdge)
 	
 		for j in range(len(points)):
 			if j == index:
@@ -34,7 +32,6 @@ def kNearestNeighbors(index, k):
 				neighbors.append([j, dist])
 				break
 
-	edges.append(index_edges)
 	neighbors.sort(key=lambda x: x[1])
 	all_neighbors = [n[0] for n in neighbors]
 	neighbor_ids.append(all_neighbors)
@@ -127,7 +124,6 @@ def writeCSV(points,axis_labels,k_distances):
 	df = df.assign(outlierclass=outlier_class)
 	df = df.assign(neighbors=neighbor_ids)
 	df = df.assign(kdistance=k_distances)
-	df = df.assign(edge=edges)	
 	
 	#sort by value 
 	df = df.round(3)	
@@ -139,7 +135,6 @@ if __name__ == "__main__":
 	global neighbor_ids
 
 	neighbor_ids = []
-	edges = []
 	points, axis_labels, k = read_data.main()
 	
 	vor = Voronoi(points, furthest_site = False)
@@ -149,9 +144,8 @@ if __name__ == "__main__":
 	regions = vor.regions
 	point_region = vor.point_region
 	k_distances = [kDistance(i,k) for i in range(len(points))]	
-	
+
 	writeCSV(points,axis_labels,k_distances)
 
-	# subprocess.run(["open", "result.csv"])	
 	plot_points(vor,points,k_distances,k,axis_labels)
 	plt.show()
