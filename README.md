@@ -2,7 +2,7 @@
 
 This project generates the Voronoi diagram in Euclidean 2-space for an arbitrary set of points and uses this partition to identify datapoints with outlier-like characteristics.
 
-![](./datasets/Figure_1.pdf)
+![](./documentation/Figure_1.pdf)
 
 Built by Jonathan Shaw, Kai Lan, and Sofia Jones for CPSC 473: Data Mining.  The accompanying term paper can be viewed [here](./documentation/term-paper.pdf)
 
